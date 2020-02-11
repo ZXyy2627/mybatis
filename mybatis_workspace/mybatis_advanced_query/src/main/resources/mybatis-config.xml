@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--配置日志输出使用log4j-->
+    <settings>
+        <setting name="logImpl" value="LOG4J"/>
+    </settings>
+    <!--给实体类的包配置别名，相当于指定全限定类名，那么在其他文件中要写实体类的时候，只要是该包下，就只用写类名即可-->
+    <typeAliases>
+        <package name="com.zxyy.domain"></package>
+    </typeAliases>
+
+    <typeHandlers>
+        <typeHandler handler="com.zxyy.type.EnabledTypeHandler" javaType="com.zxyy.type.Enabled"/>
+    </typeHandlers>
+
+    <!--mybatis主要配置，连接数据库的参数-->
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"></transactionManager>
+            <dataSource type="POOLED">
+                <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/tkmybatis?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false&amp;serverTimezone=Hongkong"/>
+                <property name="username" value="root"/>
+                <property name="password" value="zxyy2627"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+
+    <mappers>
+        <mapper resource="com/zxyy/mapper/UserMapper.xml"/>
+        <mapper resource="com/zxyy/mapper/RoleMapper.xml"/>
+        <mapper resource="com/zxyy/mapper/PrivilegeMapper.xml"/>
+        <mapper resource="com/zxyy/mapper/UserRoleMapper.xml"/>
+        <mapper resource="com/zxyy/mapper/RolePrivilegeMapper.xml"/>
+    </mappers>
+
+</configuration>

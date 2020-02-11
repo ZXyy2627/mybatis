@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zxyy.mapper.RoleMapper">
+    <resultMap id="roleMap" type="com.zxyy.domain.SysRole">
+        <result property="id" column="id"/>
+        <result property="roleName" column="role_name"/>
+        <result property="enabled" column="enabled"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <select id="findAll" resultType="com.zxyy.domain.SysRole">
+        select * from sys_role
+    </select>
+
+    <select id="selectRoleById" resultMap="roleMap">
+        select * from sys_role where id = #{id}
+    </select>
+
+    <!--&lt;!&ndash;添加角色权限映射&ndash;&gt;-->
+    <!--<resultMap id="roleAndPrivilegesMap" extends="roleMap" type="com.zxyy.domain.SysRole">-->
+        <!--<collection property="privilegeList" columnPrefix="privilege_"-->
+                    <!--resultMap="com.zxyy.mapper.PrivilegeMapper.privilegeMap" ofType="com.zxyy.domain.SysPrivilege">-->
+        <!--</collection>-->
+    <!--</resultMap>-->
+    <!--<select id="selectRoleAndPrivileges" resultMap="roleAndPrivilegesMap">-->
+        <!--select r.id,-->
+               <!--r.role_name,-->
+               <!--r.enabled,-->
+               <!--r.create_by,-->
+               <!--r.create_time,-->
+               <!--p.id privilege_id,-->
+               <!--p.privilege_name privilege_privilege_name,-->
+               <!--p.privilege_url privilege_privilege_url-->
+        <!--from sys_role r-->
+        <!--inner join sys_role_privilege rp ON rp.role_id = r.id-->
+        <!--inner join sys_privilege p on rp.privilege_id = p.id-->
+    <!--</select>-->
+
+    <resultMap id="roleAndPrivilegesMap" extends="roleMap" type="com.zxyy.domain.SysRole">
+        <collection property="privilegeList" ofType="com.zxyy.domain.SysPrivilege"
+                select="com.zxyy.mapper.PrivilegeMapper.selectPrivilegesByRoleId"
+                column="{roleId=id}">
+        </collection>
+    </resultMap>
+    <select id="selectRoleByUserId" resultMap="roleAndPrivilegesMap">
+        select r.id,
+               r.role_name,
+               r.enabled,
+               r.create_by,
+               r.create_time
+        from sys_role r
+        inner join sys_user_role ur on ur.role_id = r.id
+        where ur.user_id = #{userId}
+    </select>
+
+    <resultMap id="resultMap1" type="com.zxyy.domain.SysRole">
+        <discriminator javaType="int" column="enabled">
+            <case value="1" resultMap="roleAndPrivilegesMap"/>
+            <case value="0" resultMap="roleMap"/>
+        </discriminator>
+    </resultMap>
+
+    <select id="selectRoleByUserIdChoose" resultMap="resultMap1">
+        select r.id,
+               r.role_name,
+               r.enabled,
+               r.create_by,
+               r.create_time
+        from sys_role r
+        inner join sys_user_role ur on r.id = ur.role_id
+        where ur.user_id = #{id}
+    </select>
+</mapper>
